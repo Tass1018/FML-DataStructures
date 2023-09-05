@@ -3,7 +3,7 @@
  <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
 </p>
 
-<h3 align="center">Project Title</h3>
+<h3 align="center">Financial Data Structure Lib</h3>
 
 <div align="center">
 
@@ -16,7 +16,7 @@
 
 ---
 
-<p align="center"> Few lines describing your project.
+<p align="center"> This library is for transforming raw data to financial data structures such as VIB, DIB for machine learning uses.
     <br> 
 </p>
 
@@ -34,7 +34,8 @@
 
 ## 🧐 About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+Recently I'm reading the book Advances in Financial Machine Learning by Marcos Lopez de Prado, and I'm inspired by some interesting  contents about how financial data structures help traders to get more information from market. Therefore, I decided to implement it into library so that it can convenient more algo traders, and also as a practice for me!
+Hope I can do a great job!
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
@@ -103,12 +104,10 @@ Add additional notes about how to deploy this on a live system.
 
 ## ✍️ Authors <a name = "authors"></a>
 
-- [@kylelobo](https://github.com/kylelobo) - Idea & Initial work
+- [@Tass](https://github.com/Tass1018) - all work
 
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors) who participated in this project.
 
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
-- Hat tip to anyone whose code was used
-- Inspiration
-- References
+- Inspiration https://github.com/hudson-and-thames
+- References <Advances in Financial Machine Learning> by Marcos Lopez de Prado
