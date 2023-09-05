@@ -4,6 +4,7 @@ class DataStructures:
     
     @staticmethod
     def get_volume_bars(file_path, threshold, batch_size=1000000, verbose=False, to_csv=False, output_path=None):
+        
         """
         Generate the volume bars from a given CSV file.
 
@@ -18,6 +19,7 @@ class DataStructures:
         Returns:
             pandas.DataFrame: The volume bars containing the open, high, low, close prices, volume, cumulative buy volume, cumulative ticks, and cumulative dollar value.
         """
+        
         # Read the CSV file in chunks
         chunk_iter = pd.read_csv(file_path, chunksize=batch_size)
         
@@ -57,7 +59,3 @@ class DataStructures:
             bar_df.to_csv(output_path, index=False)
         
         return bar_df
-
-# Example usage
-data_structures = DataStructures()
-data_structures.get_volume_bars('./raw_tick_data.csv', threshold=28000, verbose=True, to_csv=True, output_path='./volume_bars.csv')
