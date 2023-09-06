@@ -1,0 +1,3 @@
+
+Trade ID, price, quantity(first currency), quote quantity(second currency), time(UNIX), maker buying (True), is it executed
+1193193671,1635.84000000,0.03740000,61.18041600,1693785600001,True,True
