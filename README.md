@@ -8,8 +8,8 @@
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/kylelobo/The-Documentation-Compendium/pulls)
+[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/Tass1018/FML-DataStructures/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/Tass1018/FML-DataStructures/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
@@ -34,7 +34,7 @@
 
 ## 🧐 About <a name = "about"></a>
 
-Recently I'm reading the book Advances in Financial Machine Learning by Marcos Lopez de Prado, and I'm inspired by some interesting  contents about how financial data structures help traders to get more information from market. Therefore, I decided to implement it into library so that it can convenient more algo traders, and also as a practice for me!
+Recently I'm reading the book called "Advances in Financial Machine Learning" by Marcos Lopez de Prado, and I'm inspired by some interesting  contents about how financial data structures help traders to get more information from market. Therefore, I decided to implement it into library so that it can convenient more algo traders, and also as a practice for me!
 Hope I can do a great job!
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
