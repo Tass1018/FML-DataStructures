@@ -9,5 +9,9 @@ class Bars(unittest.TestCase):
         self.assertEqual(True, False)  # add assertion here
 
 
+    def test_open_close_price(self):
+        self.assertEqual(True, False)  # add assertion here
+
+
 if __name__ == '__main__':
     unittest.main()
