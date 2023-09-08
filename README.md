@@ -3,14 +3,15 @@
  <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
 </p>
 
-<h3 align="center">Financial Data Structure Lib</h3>
+<h3 align="center">Financial Data Structure Implementations</h3>
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/kylelobo/The-Documentation-Compendium.svg)](https://github.com/Tass1018/FML-DataStructures/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/kylelobo/The-Documentation-Compendium.svg)](https://github.com/Tass1018/FML-DataStructures/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![Status](https://img.shields.io/badge/status-active-lightgreen)]()
+[![GitHub Issues](https://img.shields.io/badge/issues-2-lightgreen)](https://github.com/Tass1018/FML-DataStructures/issues)
+[![GitHub Pull Requests](https://img.shields.io/badge/pull_request-1-lightgreen)](https://github.com/Tass1018/FML-DataStructures/pulls)
+
+
 
 </div>
 

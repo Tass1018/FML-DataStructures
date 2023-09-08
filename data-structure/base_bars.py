@@ -60,7 +60,8 @@ class BaseBars(ABC):
 
         :return: (pd.DataFrame or None) Financial data structure
         """
-        pass
+        for batch in self._batch_iterator(file_path_or_df):
+            yield self.run(batch)
 
     def _batch_iterator(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame]) -> Generator[
         pd.DataFrame, None, None]:
