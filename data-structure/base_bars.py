@@ -60,19 +60,7 @@ class BaseBars(ABC):
 
         :return: (pd.DataFrame or None) Financial data structure
         """
-
-        if isinstance(file_path_or_df, str):
-            url = file_path_or_df
-
-        elif isinstance(file_path_or_df, pd.DataFrame):
-            pass
-        elif isinstance(file_path_or_df, Iterable):
-            pass
-        else:
-            pass
-
-
-
+        pass
 
     def _batch_iterator(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame]) -> Generator[
         pd.DataFrame, None, None]:
@@ -81,18 +69,28 @@ class BaseBars(ABC):
                                 containing raw tick data in the format[date_time, price, volume]
         """
 
+        if isinstance(file_path_or_df, str):
+            file_path_or_df = [file_path_or_df]
+            for file_path in file_path_or_df:
+                for batch in pd.read_csv(file_path, chunksize=self.batch_size):
+                    yield batch
 
+        elif isinstance(file_path_or_df, pd.DataFrame):
+            for batch in _crop_data_frame_in_batches(file_path_or_df, self.batch_size):
+                yield batch
+        elif isinstance(file_path_or_df, Iterable):
+            for file_path in file_path_or_df:
+                for batch in pd.read_csv(file_path, chunksize=self.batch_size):
+                    yield batch
+        else:
+            pass
 
-        pass
-
+    @staticmethod
     def _read_first_row(self, file_path: str):
         """
         :param file_path: (str) Path to the csv file containing raw tick data in the format[date_time, price, volume]
         """
-        # with open(file_path, 'r') as f:
-
-
-        pass
+        return pd.read_csv(file_path, nrows=1)
 
     def run(self, data: Union[list, tuple, pd.DataFrame]) -> list:
         """
