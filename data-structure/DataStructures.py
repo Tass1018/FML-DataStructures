@@ -96,8 +96,8 @@ class DataStructures:
                     # Reset
                     next_tick_start = True
                     ticks_accumulated = 0
-                    if verbose:
-                        print(f"Bar created: {bars[-1]}")
+                    # if verbose:
+                    #     print(f"Bar created: {bars[-1]}")
 
         # Create a DataFrame from the bars
         columns = ['date', 'time', 'volume', 'open',
@@ -146,8 +146,8 @@ class DataStructures:
                     # Reset
                     next_dollar_start = True
                     dollar_accumulated = 0
-                    if verbose:
-                        print(f"Bar created: {bars[-1]}")
+                    # if verbose:
+                    #     print(f"Bar created: {bars[-1]}")
 
         # Create a DataFrame from the bars
         columns = ['date', 'time', 'cum_ticks', 'open',

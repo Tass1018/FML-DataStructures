@@ -1,41 +1,77 @@
 import csv
 from datetime import datetime
+from logger import logger
 
 
 class BinanceTickData:
     def __init__(self):
-        self.Trade_id = 0
+        self.trade_id = 0
         self.price = 1
         self.qt = 2
         self.quote_qt = 3
         self.unix_time = 4
-        self.maker_buying = 5,
+        self.maker_buying = 5
         self.exec = 6
+
+class BinanceKLineData:
+    def __init__(self):
+        self.open_time = 0
+        self.open = 1
+        self.high = 2
+        self.low = 3
+        self.close = 4
+
+    def saveData(symbol='ETHUSDT', interval='1d', start_date='20 Sep,2023', end_date=None):
+        Client.KLINE_INTERVAL_15MINUTE
+        klines = client.get_historical_klines(symbol, interval, start_date)
+        data = pd.DataFrame(klines)
+        # create colums name
+        data.columns = ['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'qav', 'num_trades',
+                        'taker_base_vol', 'taker_quote_vol', 'ignore']
+        # change the timestamp
+        data.index = [dt.datetime.fromtimestamp(x / 1000.0) for x in data.close_time]
+        data = data.apply(pd.to_numeric)
+        data.to_csv(symbol + '.csv', index=None, header=True)
 
 
 class ExtractData:
-    def extract_and_save(self, input_file, output_file, writerow=None,
-                         data_src=BinanceTickData()):
+    def __init__(self, data_src=BinanceTickData()):
+        self.data_src = data_src
+
+    def extract_and_save_tick(self, input_file, output_file, writerow=None):
         if writerow is None:
             writerow = ['Date', 'Time', 'Price', 'Volume']
-        with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
-            # Initialize CSV reader and writer
-            reader = csv.reader(infile)
-            writer = csv.writer(outfile)
 
-            # Write header to the output file
-            writer.writerow(writerow)
+        try:
+            with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
+                # Initialize CSV reader and writer
+                reader = csv.reader(infile)
+                writer = csv.writer(outfile)
 
-            for row in reader:
-                # Extract the required columns
-                unix_time = int(row[data_src.unix_time])
-                price = row[data_src.price]
-                volume = row[data_src.qt]
+                # Write header to the output file
+                writer.writerow(writerow)
 
-                # Convert UNIX time to Date and Time
-                dt = datetime.utcfromtimestamp(unix_time / 1000)
-                date = dt.strftime('%Y-%m-%d')
-                time = dt.strftime('%H:%M:%S')
+                for row in reader:
+                    try:
+                        unix_time = int(row[self.data_src.unix_time])
+                        price = row[self.data_src.price]
+                        volume = row[self.data_src.qt]
 
-                # Write the extracted data to the output file
-                writer.writerow([date, time, price, volume])
+                        # Convert UNIX time to Date and Time
+                        dt = datetime.utcfromtimestamp(unix_time / 1000)
+                        date = dt.strftime('%Y-%m-%d')
+                        time = dt.strftime('%H:%M:%S.%f')[:-3]  # Include milliseconds and truncate to 3 decimal places
+
+                        # Write the extracted data to the output file
+                        writer.writerow([date, time, price, volume])
+                    except ValueError as ve: logger.value_error(ve)
+                    except IndexError as ie: logger.index_error(ie, row)
+                logger.success_save(output_file)
+        except FileNotFoundError: logger.file_not_found(input_file)
+        except Exception as e: logger.unexpected_error(e)
+
+# Usage
+# extractor = ExtractData()
+# input_file = 'path_to_your_input_file.csv'
+# output_file = 'path_to_your_output_file.csv'
+# extractor.extract_and_save(input_file, output_file)
