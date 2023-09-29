@@ -1,5 +1,62 @@
 import pandas as pd
 
+import pandas as pd
+import threading
+
+
+class RealTimeBars:
+    def __init__(self, threshold, bar_type):
+        self.threshold = threshold
+        self.bar_type = bar_type
+        self.accumulated = 0
+        self.bars = []
+        self.cum_buy_volume = 0
+        self.cum_ticks = 0
+        self.cum_vol_value = 0
+        self.open_price = self.bucket_low_price = self.bucket_high_price = 9999999999
+        self.next_bar_start = True
+        self.lock = threading.Lock()
+
+    def handle_trade(self, trade):
+        with self.lock:
+            if self.next_bar_start:
+                self.open_price = self.bucket_low_price = self.bucket_high_price = trade['Price']
+                self.next_bar_start = False
+            if trade['Price'] < self.bucket_low_price:
+                self.bucket_low_price = trade['Price']
+            if trade['Price'] > self.bucket_high_price:
+                self.bucket_high_price = trade['Price']
+
+            if self.bar_type == 'dollar':
+                self.accumulated += trade['Price'] * trade['Volume']
+            elif self.bar_type == 'volume':
+                self.accumulated += trade['Volume']
+            elif self.bar_type == 'tick':
+                self.accumulated += 1
+
+            self.cum_buy_volume += trade['Volume']
+            self.cum_ticks += 1
+            self.cum_vol_value += trade['Volume']
+
+            if self.accumulated >= self.threshold:
+                high_price = self.bucket_high_price
+                low_price = self.bucket_low_price
+                close_price = trade['Price']
+
+                self.bars.append([trade['Date'], trade['Time'], self.cum_ticks, self.open_price, high_price, low_price, close_price,
+                                self.accumulated, self.cum_buy_volume, self.cum_vol_value])
+                self.next_bar_start = True
+                self.accumulated = 0
+                print(f"{self.bar_type.capitalize()} Bar created: {self.bars[-1]}")
+
+    def get_bars(self):
+        columns = ['date', 'time', 'cum_ticks', 'open',
+                   'high', 'low', 'close', f'cum_{self.bar_type}_value',
+                   'cum_buy_volume', 'cum_volume']
+        return pd.DataFrame(self.bars, columns=columns)
+
+
+
 
 class DataStructures:
     @staticmethod

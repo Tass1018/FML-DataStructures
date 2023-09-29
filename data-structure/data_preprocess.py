@@ -1,6 +1,29 @@
 import csv
 from datetime import datetime
 from logger import logger
+from binance_historical_data import BinanceDataDumper
+
+class DataDumper:
+    from binance_historical_data import BinanceDataDumper
+    def __init__(self, path_dir_where_to_dump='.', asset_class='spot', data_type='trades', data_frequency='30m'):
+        self.path_dir_where_to_dump = path_dir_where_to_dump
+        self.asset_class = asset_class
+        self.data_type = data_type
+        self.data_frequency = data_frequency
+        self.data_dumper = BinanceDataDumper(
+            path_dir_where_to_dump=path_dir_where_to_dump,
+            asset_class=asset_class,  # spot, um, cm
+            data_type=data_type,  # aggTrades, klines, trades
+            data_frequency=data_frequency,
+        )
+
+    def dump(self, start, end):
+        self.data_dumper.dump_data(
+            tickers=['ETHUSDT'],
+            date_start=datetime.date(year=2023, month=9, day=1),
+            date_end=datetime.date(year=2023, month=9, day=28),
+            is_to_update_existing=False,
+        )
 
 
 class BinanceTickData:
@@ -12,6 +35,7 @@ class BinanceTickData:
         self.unix_time = 4
         self.maker_buying = 5
         self.exec = 6
+
 
 class BinanceKLineData:
     def __init__(self):
@@ -64,11 +88,15 @@ class ExtractData:
 
                         # Write the extracted data to the output file
                         writer.writerow([date, time, price, volume])
-                    except ValueError as ve: logger.value_error(ve)
-                    except IndexError as ie: logger.index_error(ie, row)
+                    except ValueError as ve:
+                        logger.value_error(ve)
+                    except IndexError as ie:
+                        logger.index_error(ie, row)
                 logger.success_save(output_file)
-        except FileNotFoundError: logger.file_not_found(input_file)
-        except Exception as e: logger.unexpected_error(e)
+        except FileNotFoundError:
+            logger.file_not_found(input_file)
+        except Exception as e:
+            logger.unexpected_error(e)
 
 # Usage
 # extractor = ExtractData()
