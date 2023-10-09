@@ -1,12 +1,11 @@
 import json
 import websocket
-import threading
 import datetime
 from DataStructures import *
-
+import credentials
 from binance.client import Client
-api_key = 'MTnWw8ZW9XxvEYBQALitEz6n0pTaL2Ygis1jFmfSTShZGH2rWwhWAqfbDyaDKtKY'
-api_secret = 'rhAGuQLjoPx3uBjwVXWIXGXDmGLKRNSrWV7J4QuEZsWosHxgGlnly3Iclq8rEJyD'
+api_key = credentials.api_key
+api_secret = credentials.api_secret
 client = Client(api_key, api_secret)
 
 def on_message(dollar_bar, volume_bar, tick_bar, wsapp, message):
@@ -14,22 +13,18 @@ def on_message(dollar_bar, volume_bar, tick_bar, wsapp, message):
     trade = {
         'Date': datetime.datetime.fromtimestamp(json_message['E'] / 1000).strftime('%Y-%m-%d'),
         'Time': datetime.datetime.fromtimestamp(json_message['E'] / 1000).strftime('%H:%M:%S.%f')[:-3],
-        # in milliseconds
         'Price': float(json_message['p']),
         'Volume': float(json_message['q'])
     }
 
-    # Start threads for handling trades
     dollar_thread = threading.Thread(target=dollar_bar.handle_trade, args=(trade,))
     volume_thread = threading.Thread(target=volume_bar.handle_trade, args=(trade,))
     tick_thread = threading.Thread(target=tick_bar.handle_trade, args=(trade,))
 
-    # Start the threads
     dollar_thread.start()
     volume_thread.start()
     tick_thread.start()
 
-    # Wait for all threads to complete
     dollar_thread.join()
     volume_thread.join()
     tick_thread.join()

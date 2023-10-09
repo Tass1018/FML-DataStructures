@@ -3,7 +3,6 @@ import pandas as pd
 
 
 class Volatility:
-
     @staticmethod
     def getVolatility(close, span0=100):
         # daily vol, reindexed to close

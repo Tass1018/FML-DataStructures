@@ -21,7 +21,5 @@ class base_bars(unittest.TestCase):
     def test_open_close_price(self):
         self.assertEqual(True, True)  # add assertion here
 
-
-
 if __name__ == '__main__':
     unittest.main()

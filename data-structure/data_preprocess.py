@@ -2,6 +2,8 @@ import csv
 from datetime import datetime
 from logger import logger
 from binance_historical_data import BinanceDataDumper
+from typing import Tuple, Union, Generator, Iterable, Optional
+
 
 class DataDumper:
     from binance_historical_data import BinanceDataDumper
@@ -17,10 +19,14 @@ class DataDumper:
             data_frequency=data_frequency,
         )
 
-    def dump(self, start, end):
+    def dump(self, start: Union[Iterable[int], int], end: None):
+        if isinstance(start, Iterable):
+            sy, sm, sd = start
+        if isinstance(start, int) and end is None:
+            sy, sm, sd = start, 1, 1
         self.data_dumper.dump_data(
             tickers=['ETHUSDT'],
-            date_start=datetime.date(year=2023, month=9, day=1),
+            date_start=datetime.date(year=sy, month=sm, day=sd),
             date_end=datetime.date(year=2023, month=9, day=28),
             is_to_update_existing=False,
         )
@@ -35,27 +41,6 @@ class BinanceTickData:
         self.unix_time = 4
         self.maker_buying = 5
         self.exec = 6
-
-
-class BinanceKLineData:
-    def __init__(self):
-        self.open_time = 0
-        self.open = 1
-        self.high = 2
-        self.low = 3
-        self.close = 4
-
-    def saveData(symbol='ETHUSDT', interval='1d', start_date='20 Sep,2023', end_date=None):
-        Client.KLINE_INTERVAL_15MINUTE
-        klines = client.get_historical_klines(symbol, interval, start_date)
-        data = pd.DataFrame(klines)
-        # create colums name
-        data.columns = ['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'qav', 'num_trades',
-                        'taker_base_vol', 'taker_quote_vol', 'ignore']
-        # change the timestamp
-        data.index = [dt.datetime.fromtimestamp(x / 1000.0) for x in data.close_time]
-        data = data.apply(pd.to_numeric)
-        data.to_csv(symbol + '.csv', index=None, header=True)
 
 
 class ExtractData:

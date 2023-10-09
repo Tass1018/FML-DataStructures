@@ -2,12 +2,12 @@
 A base class for the various bar types. Includes the logic shared between classes, to minimise the amount of
 duplicated code.
 """
-
 from abc import ABC, abstractmethod
-from typing import Tuple, Union, Generator, Iterable, Optional
+from typing import Tuple, Union, Generator, Iterable, Optional, Any
 
 import numpy as np
 import pandas as pd
+import csv
 
 
 def _crop_data_frame_in_batches(df: pd.DataFrame, chunksize: int) -> list:
@@ -43,6 +43,14 @@ class BaseBars(ABC):
         """
         self.metric = metric
         self.batch_size = batch_size
+
+        self.high_price = None
+        self.low_price = None
+        self.cum_dollar_value = 0
+        self.cum_ticks = 0
+        self.cum_volume = 0
+        self.open_price = None
+        self.cum_buy_volume = 0
         pass
 
     def batch_run(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame], verbose: bool = True,
@@ -60,8 +68,30 @@ class BaseBars(ABC):
 
         :return: (pd.DataFrame or None) Financial data structure
         """
-        for batch in self._batch_iterator(file_path_or_df):
-            yield self.run(batch)
+        all_bars = []  # List to store the bars dataframes before concatenation
+
+        for batch_no, batch in enumerate(self._batch_iterator(file_path_or_df)):
+            # If verbose is True, print the batch number
+            if verbose:
+                print(f"Processing batch {batch_no + 1}...")
+
+            # Generate bars and append to all_bars
+            bars = self.run(batch)
+            all_bars.append(bars)
+
+            # If to_csv is True, save the bars to a CSV file
+            if to_csv:
+                if output_path is None:
+                    raise ValueError("output_path must be provided if to_csv is True.")
+                with open(output_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerows(bars)
+
+        # Concatenate all the bar dataframes and return
+        if to_csv:
+            return None
+        all_bars = pd.DataFrame(all_bars, columns=['date_time', 'price', 'volume'], index=None)
+        return all_bars
 
     def _batch_iterator(self, file_path_or_df: Union[str, Iterable[str], pd.DataFrame]) -> Generator[
         pd.DataFrame, None, None]:
@@ -102,8 +132,15 @@ class BaseBars(ABC):
 
         :return: (list) Financial data structure
         """
+        if isinstance(data, (list, tuple)):
+            data = pd.DataFrame(data, columns=['date_time', 'price', 'volume'])
+        elif isinstance(data, pd.DataFrame):
+            pass  # Data is already a DataFrame
+        else:
+            raise TypeError("Data should be a list, tuple, or DataFrame")
 
-        pass
+        return self._extract_bars(data)
+
 
     @abstractmethod
     def _extract_bars(self, data: pd.DataFrame) -> list:
@@ -146,10 +183,18 @@ class BaseBars(ABC):
         :param price: (float) Current price
         :return: (tuple) Updated high and low prices
         """
+        if self.high_price is None:
+            self.high_price = price
+        if self.low_price is None:
+            self.low_price = price
+        else:
+            self.high_price = max(self.high_price, price)
+            self.low_price = min(self.low_price, price)
 
         pass
 
-    def _create_bars(self, date_time: str, price: float, high_price: float, low_price: float, list_bars: list) -> None:
+
+    def _create_bars(self, date_time: str, price: float, list_bars: list) -> None:
         """
         Given the inputs, construct a bar which has the following fields: date_time, open, high, low, close, volume,
         cum_buy_volume, cum_ticks, cum_dollar_value.
@@ -161,7 +206,20 @@ class BaseBars(ABC):
         :param low_price: (float) Lowest price in the period
         :param list_bars: (list) List to which we append the bars
         """
-
+        bar = [date_time, self.open_price, self.high_price, self.low_price, price,
+               self.cum_volume, self.cum_buy_volume, self.cum_ticks, self.cum_dollar_value]
+        # bar = {
+        #     'date_time': date_time,
+        #     'open': self.open_price,
+        #     'high': high_price,
+        #     'low': low_price,
+        #     'close': price,
+        #     'volume': self.cum_volume,
+        #     'cum_buy_volume': self.cum_buy_volume,  # Assuming this is maintained and updated
+        #     'cum_ticks': self.cum_ticks,
+        #     'cum_dollar_value': self.cum_dollar_value
+        # }
+        list_bars.append(bar)
         pass
 
     def _apply_tick_rule(self, price: float) -> int:

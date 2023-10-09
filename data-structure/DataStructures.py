@@ -2,10 +2,10 @@ import pandas as pd
 
 import pandas as pd
 import threading
-
+import time
 
 class RealTimeBars:
-    def __init__(self, threshold, bar_type):
+    def __init__(self, threshold, bar_type, batch_size=1024):
         self.threshold = threshold
         self.bar_type = bar_type
         self.accumulated = 0
@@ -16,6 +16,7 @@ class RealTimeBars:
         self.open_price = self.bucket_low_price = self.bucket_high_price = 9999999999
         self.next_bar_start = True
         self.lock = threading.Lock()
+        self.batch_size = batch_size
 
     def handle_trade(self, trade):
         with self.lock:
@@ -43,8 +44,9 @@ class RealTimeBars:
                 low_price = self.bucket_low_price
                 close_price = trade['Price']
 
-                self.bars.append([trade['Date'], trade['Time'], self.cum_ticks, self.open_price, high_price, low_price, close_price,
-                                self.accumulated, self.cum_buy_volume, self.cum_vol_value])
+                self.bars.append(
+                    [trade['Date'], trade['Time'], self.cum_ticks, self.open_price, high_price, low_price, close_price,
+                     self.accumulated, self.cum_buy_volume, self.cum_vol_value])
                 self.next_bar_start = True
                 self.accumulated = 0
                 print(f"{self.bar_type.capitalize()} Bar created: {self.bars[-1]}")
@@ -54,8 +56,6 @@ class RealTimeBars:
                    'high', 'low', 'close', f'cum_{self.bar_type}_value',
                    'cum_buy_volume', 'cum_volume']
         return pd.DataFrame(self.bars, columns=columns)
-
-
 
 
 class DataStructures:
@@ -112,8 +112,6 @@ class DataStructures:
 
         return bar_df
 
-
-
     @staticmethod
     def get_tick_bars(file_path, threshold, batch_size=1000000, verbose=False, to_csv=False, output_path=None):
         # Read the CSV file in chunks
@@ -169,6 +167,7 @@ class DataStructures:
     @staticmethod
     def get_dollar_bars(file_path, threshold, batch_size=1000000, verbose=False, to_csv=False, output_path=None):
         # Read the CSV file in chunks
+        start_time = time.time()
         chunk_iter = pd.read_csv(file_path, chunksize=batch_size)
 
         dollar_accumulated = 0
@@ -213,7 +212,17 @@ class DataStructures:
         bar_df = pd.DataFrame(bars, columns=columns)
 
         if to_csv:
+
             bar_df.to_csv(output_path, index=False)
+            end_time = time.time()
+            elapsed_time = (end_time - start_time)  # converting seconds to milliseconds
+
+            print(f"Time taken to generate bars: {elapsed_time:.2f} seconds")
+            return None
+
+        end_time = time.time()
+        elapsed_time = (end_time - start_time)  # converting seconds to milliseconds
+
+        print(f"Time taken to generate bars: {elapsed_time:.2f} seconds")
 
         return bar_df
-
