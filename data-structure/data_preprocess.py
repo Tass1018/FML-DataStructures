@@ -3,7 +3,7 @@ from datetime import datetime
 from logger import logger
 from binance_historical_data import BinanceDataDumper
 from typing import Tuple, Union, Generator, Iterable, Optional
-
+import pandas as pd
 
 class DataDumper:
     from binance_historical_data import BinanceDataDumper
@@ -49,7 +49,7 @@ class ExtractData:
 
     def extract_and_save_tick(self, input_file, output_file, writerow=None):
         if writerow is None:
-            writerow = ['Date', 'Time', 'Price', 'Volume']
+            writerow = ['Datetime', 'Price', 'Volume']
 
         try:
             with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
@@ -70,9 +70,8 @@ class ExtractData:
                         dt = datetime.utcfromtimestamp(unix_time / 1000)
                         date = dt.strftime('%Y-%m-%d')
                         time = dt.strftime('%H:%M:%S.%f')[:-3]  # Include milliseconds and truncate to 3 decimal places
-
                         # Write the extracted data to the output file
-                        writer.writerow([date, time, price, volume])
+                        writer.writerow([unix_time, price, volume])
                     except ValueError as ve:
                         logger.value_error(ve)
                     except IndexError as ie:
@@ -82,6 +81,33 @@ class ExtractData:
             logger.file_not_found(input_file)
         except Exception as e:
             logger.unexpected_error(e)
+
+
+def convert_datetime(df: pd.DataFrame, to_index: bool) -> pd.DataFrame:
+    """
+    Convert the 'datetime' column of a DataFrame from UNIX format to standard datetime format if necessary.
+
+    :param df: Input DataFrame.
+    :return: DataFrame with converted 'datetime' column.
+    """
+
+    # Check the first entry of 'datetime' column to see if it's in UNIX format
+    # UNIX timestamps are typically large integers (e.g., 1617859850 for '2021-04-08 01:57:30')
+    # We'll use a simple heuristic: if it's a large integer, we assume it's UNIX timestamp
+    X = df.copy()
+    first_entry = X['date_time'].iloc[0]
+
+    try:
+        if isinstance(first_entry,
+                      (int, float)) and first_entry > 1e9:  # 1e9 is just an arbitrary large number as a threshold
+            # Convert UNIX timestamps to datetime format
+            X['date_time'] = pd.to_datetime(X['date_time'], unit='ms')  # 's' specifies seconds since epoch
+            print(f"Converted UNIX timestamp to datetime format: {X['date_time'].iloc[0]}")
+    except:
+        pass
+    if to_index:
+        X.set_index('date_time', inplace=True)
+    return X
 
 # Usage
 # extractor = ExtractData()

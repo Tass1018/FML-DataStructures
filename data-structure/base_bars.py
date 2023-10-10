@@ -8,6 +8,7 @@ from typing import Tuple, Union, Generator, Iterable, Optional, Any
 import numpy as np
 import pandas as pd
 import csv
+import os
 
 
 def _crop_data_frame_in_batches(df: pd.DataFrame, chunksize: int) -> list:
@@ -83,8 +84,13 @@ class BaseBars(ABC):
             if to_csv:
                 if output_path is None:
                     raise ValueError("output_path must be provided if to_csv is True.")
+
+                file_exists = os.path.isfile(output_path)
                 with open(output_path, mode='a', newline='') as file:
                     writer = csv.writer(file)
+                    if not file_exists:
+                        writer.writerow(
+                            ['date_time', 'open', 'high', 'low', 'close', 'volume', 'buy_vol', 'ticks', 'dollar'])
                     writer.writerows(bars)
 
         # Concatenate all the bar dataframes and return
